@@ -44,29 +44,9 @@ if st.button("🚀 ประมวลผลสมการ", use_container_width
         st.success("✅ คำนวณสมการสำเร็จ!")
         
         # -----------------------------------------
-        # 🔍 ฟีเจอร์ใหม่: วิเคราะห์หา "เลขชน" (Intersection)
+        # 🔍 ฟีเจอร์วิเคราะห์และแจ้งเตือนพิเศษ
         # -----------------------------------------
-        # แปลง List เป็น Set แล้วหาตัวที่ซ้ำกัน
+        # 1. วิเคราะห์หา "เลขชน" (Intersection)
         common_numbers = set(result_set1).intersection(set(result_set2))
         
-        # ถ้ามีเลขซ้ำกัน ให้แสดงคำเตือนพิเศษ
-        if len(common_numbers) > 0:
-            # ดึงเลขที่ชนกันมาแสดง
-            intersect_str = ', '.join(map(str, common_numbers))
-            st.error(f"🚨 **สัญญาณพิเศษ:** พบเลขชนกันคือ **[ {intersect_str} ]** \n\n**คำแนะนำ:** รอบนี้อาจจะออก **เลขเบิ้ล** หรือ **เลขตอง**!")
-        
-        # -----------------------------------------
-        # แสดงผลลัพธ์ปกติแบบกล่องสวยงาม
-        # -----------------------------------------
-        res_col1, res_col2 = st.columns(2)
-        
-        with res_col1:
-            st.info("🎯 **เลขเด่นชุดที่ 1**")
-            st.markdown(f"<h2 style='text-align: center; color: #1f77b4;'>{', '.join(map(str, result_set1))}</h2>", unsafe_allow_html=True)
-            
-        with res_col2:
-            st.warning("🎯 **เลขเด่นชุดที่ 2**")
-            st.markdown(f"<h2 style='text-align: center; color: #ff7f0e;'>{', '.join(map(str, result_set2))}</h2>", unsafe_allow_html=True)
-            
-    else:
-        st.error("⚠️ ข้อมูลไม่ถูกต้อง: กรุณากรอกเลขบนให้ครบ 3 หลัก และเลขล่าง 2 หลัก (เฉพาะตัวเลขเท่านั้น)")
+        if len(common_
