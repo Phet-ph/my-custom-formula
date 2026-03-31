@@ -3,7 +3,7 @@ import pandas as pd
 import itertools
 
 # =========================================
-# 1. สมองกล: ฟังก์ชันสมการของคุณ
+# 1. สมองกล: สูตรทดสอบที่ 1: "สูตรผลรวมไขว้และสเต็ปคู่" Cross-Sum & Even Steps
 # =========================================
 def my_custom_formula_updated(top_str, bottom_str):
     t1 = int(str(top_str).zfill(3)[0])
