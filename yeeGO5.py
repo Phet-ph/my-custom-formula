@@ -83,7 +83,7 @@ def run_detailed_backtest(df):
         next_bot = str(df.iloc[i+1]['bottom']).zfill(2)
 
         # เรียกใช้สูตรที่ 5
-        set1, set2 = my_custom_formula_test_5(curr_top, curr_bot, prev_top, prev_bot)
+        set1, set2 = my_custom_formula_updated(curr_top, curr_bot, prev_top, prev_bot)
         
         # 📌 [จุดที่แก้ไข] สร้างข้อความแยกชุดที่ 1 และชุดที่ 2 คั่นด้วย /
         str_set1 = ", ".join(map(str, set1))
