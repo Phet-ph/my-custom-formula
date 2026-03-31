@@ -19,7 +19,7 @@ def my_custom_formula_updated(top_str, bottom_str):
     set_1 = [start_num_1, (start_num_1 + 2) % 10, (start_num_1 + 4) % 10]
 
     # 🎯 ชุดที่ 2: ไขว้ข้ามขั้ว (ร้อยบน + หน่วยล่าง) และ (หน่วยบน + สิบล่าง)
-    set_2 = [(t1 + b2) % 10, (t3 + b1) % 10]ำ
+    set_2 = [(t1 + b2) % 10, (t3 + b1) % 10]
     
     # คืนค่าแบบ List ทั้งคู่ (ไม่ใช้ set ครอบแล้ว)
     return set_1, set_2
