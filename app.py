@@ -64,7 +64,6 @@ def run_detailed_backtest(df):
 # 3. ฟังก์ชันไฮไลท์สีตาราง
 # =========================================
 def highlight_hits(row):
-    # ถ้าเข้าเป้าบน หรือ เข้าเป้าล่าง ให้ระบายสีเขียวอ่อนทั้งบรรทัด
     if row['ผลลัพธ์บน'] == '✅ เข้า' or row['ผลลัพธ์ล่าง'] == '✅ เข้า':
         return ['background-color: #d4edda; color: #155724'] * len(row)
     return [''] * len(row)
@@ -77,6 +76,7 @@ st.set_page_config(page_title="ระบบวิเคราะห์ตัว�
 st.title("🧮 ระบบวิเคราะห์ตัวเลข (Custom Algorithm)")
 st.markdown("---")
 
+# สร้างหน้าต่าง 2 แท็บ
 tab1, tab2 = st.tabs(["🔍 คำนวณรายรอบ (Manual)", "📊 ทดสอบความแม่นยำ (Backtest CSV)"])
 
 # -----------------------------------------
@@ -85,17 +85,4 @@ tab1, tab2 = st.tabs(["🔍 คำนวณรายรอบ (Manual)", "📊 �
 with tab1:
     col1, col2 = st.columns(2)
     with col1:
-        top_input = st.text_input("กรอกเลขบน (3 หลัก)", max_chars=3, placeholder="เช่น 825", key="man_top")
-    with col2:
-        bottom_input = st.text_input("กรอกเลขล่าง (2 หลัก)", max_chars=2, placeholder="เช่น 35", key="man_bot")
-
-    if st.button("🚀 ประมวลผลสมการ", use_container_width=True):
-        if len(top_input) == 3 and len(bottom_input) == 2 and top_input.isdigit() and bottom_input.isdigit():
-            result_set1, result_set2 = my_custom_formula_updated(top_input, bottom_input)
-            
-            res_col1, res_col2 = st.columns(2)
-            with res_col1:
-                st.info("🎯 **เลขเด่นชุดที่ 1**")
-                st.markdown(f"<h2 style='text-align: center; color: #1f77b4;'>{', '.join(map(str, result_set1))}</h2>", unsafe_allow_html=True)
-            with res_col2:
-                st.warning("🎯 **เลขเด่นชุดที่ 2**")
+        top_input
