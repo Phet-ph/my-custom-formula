@@ -7,21 +7,19 @@ import itertools
 # =========================================
 
 def my_custom_formula_updated(top_str, bottom_str):
-    t1 = int(str(top_str).zfill(3)[0])
-    t2 = int(str(top_str).zfill(3)[1])
-    t3 = int(str(top_str).zfill(3)[2]) # ดึงหลักหน่วยบนมาใช้ด้วย
+    t1 = int(str(top_str).zfill(3)[0])  # หลักร้อยบน
+    t2 = int(str(top_str).zfill(3)[1])  # หลักสิบบน
+    t3 = int(str(top_str).zfill(3)[2])  # หลักหน่วยบน (ตัวแปรใหม่)
     
-    b1 = int(str(bottom_str).zfill(2)[0])
-    b2 = int(str(bottom_str).zfill(2)[1])
+    b1 = int(str(bottom_str).zfill(2)[0])  # หลักสิบล่าง
+    b2 = int(str(bottom_str).zfill(2)[1])  # หลักหน่วยล่าง
 
-    # --- ชุดที่ 1 ---
-    start_num = (t3 + b2) % 10  
-    set_1 = [start_num, (start_num + 3) % 10, (start_num + 6) % 10]
+    # 🎯 ชุดที่ 1: (สิบบน + หน่วยบน + สิบล่าง) แล้วบวกสะสมทีละ 2
+    start_num_1 = (t2 + t3 + b1) % 10
+    set_1 = [start_num_1, (start_num_1 + 2) % 10, (start_num_1 + 4) % 10]
 
-    # --- ชุดที่ 2 (ปรับตามคำขอ: ไม่ใช้ set() เพื่อให้โชว์เลขชน) ---
-    diff_tens = abs(t2 - b1) % 10
-    diff_units = abs(t3 - b2) % 10
-    set_2 = [diff_tens, diff_units] # คืนค่าเป็น List ปกติ ไม่ตัดตัวซ้ำ
+    # 🎯 ชุดที่ 2: ไขว้ข้ามขั้ว (ร้อยบน + หน่วยล่าง) และ (หน่วยบน + สิบล่าง)
+    set_2 = [(t1 + b2) % 10, (t3 + b1) % 10]ำ
     
     # คืนค่าแบบ List ทั้งคู่ (ไม่ใช้ set ครอบแล้ว)
     return set_1, set_2
