@@ -3,7 +3,7 @@ import pandas as pd
 import itertools
 
 # =========================================
-# 1. สมองกล: สูตรทดสอบที่ 1: "สูตรผลรวมไขว้และสเต็ปคู่" Cross-Sum & Even Steps
+# 1. สมองกล: สูตรทดสอบที่ 2: "สูตรชนหลักหน่วยและผลต่าง" Unit Clash & Difference
 # =========================================
 
 def my_custom_formula_test_2(top_str, bottom_str):
