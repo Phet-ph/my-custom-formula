@@ -21,14 +21,9 @@ def my_custom_formula_updated(top_str, bottom_str):
 # 2. ฟังก์ชันทำความสะอาดข้อมูล (Auto-Data Cleaner)
 # =========================================
 def clean_and_prepare_data(df):
-    """
-    ฟังก์ชันวิเศษ! จัดการไฟล์ CSV แบบหลายคอลัมน์และช่องว่างให้อัตโนมัติ
-    """
-    # 1. ค้นหาทุกคอลัมน์ที่มีคำว่า 'top' และ 'bottom'
     top_cols = [c for c in df.columns if 'top' in str(c).lower()]
     bot_cols = [c for c in df.columns if 'bottom' in str(c).lower()]
     
-    # 2. นำข้อมูลจากทุกคอลัมน์มาต่อกันเป็นแถวเดียวแนวยาว
     if len(top_cols) > 0 and len(bot_cols) > 0:
         min_len = min(len(top_cols), len(bot_cols))
         all_top = pd.concat([df[top_cols[i]] for i in range(min_len)], ignore_index=True)
@@ -37,18 +32,15 @@ def clean_and_prepare_data(df):
     else:
         clean_df = df.copy()
     
-    # 3. แปลงเป็นข้อความ และตัดแถวที่เป็นค่าว่าง (NaN) ทิ้งไป
     clean_df['top'] = clean_df['top'].astype(str).str.strip()
     clean_df['bottom'] = clean_df['bottom'].astype(str).str.strip()
     
-    # 4. กรองเอาเฉพาะ "ตัวเลขล้วนๆ" เท่านั้น (NaN หรือตัวหนังสือจะถูกปัดทิ้งทั้งหมด)
     clean_df = clean_df[clean_df['top'].str.isnumeric() & clean_df['bottom'].str.isnumeric()]
     
-    # รีเซ็ตเลขลำดับใหม่เพื่อให้รันได้อย่างราบรื่น
     return clean_df.reset_index(drop=True)
 
 # =========================================
-# 3. ฟังก์ชันทดสอบความแม่นยำ (Backtest รายรอบ)
+# 3. ฟังก์ชันทดสอบความแม่นยำ (อัปเดตการแสดงผลตาราง)
 # =========================================
 def run_detailed_backtest(df):
     results_list = []
@@ -63,8 +55,14 @@ def run_detailed_backtest(df):
         next_bot = str(df.iloc[i+1]['bottom']).zfill(2)
 
         set1, set2 = my_custom_formula_updated(curr_top, curr_bot)
+        
+        # 📌 [จุดที่แก้ไข] สร้างข้อความแยกชุดที่ 1 และชุดที่ 2 คั่นด้วย /
+        str_set1 = ", ".join(map(str, set1))
+        str_set2 = ", ".join(map(str, set2))
+        pred_str_display = f"{str_set1} / {str_set2}"
+
+        # นำมารวมกันเป็น Set เพื่อใช้ตรวจคำตอบ (ไม่ให้ตรวจเลขซ้ำเบิ้ล)
         predicted_digits = set(set1).union(set(set2))
-        pred_str = ", ".join(map(str, sorted(list(predicted_digits))))
 
         is_hit_top = any(str(d) in next_top for d in predicted_digits)
         is_hit_bot = any(str(d) in next_bot for d in predicted_digits)
@@ -75,7 +73,7 @@ def run_detailed_backtest(df):
         results_list.append({
             "ลำดับคิว": i + 1,
             "เลขฐาน (บน/ล่าง)": f"{curr_top} / {curr_bot}",
-            "เลขเด่นที่ได้": pred_str,
+            "เลขเด่นที่ได้ (ช1 / ช2)": pred_str_display,  # 📌 แสดงผลแบบมี /
             "ผลรอบถัดไป": f"{next_top} / {next_bot}",
             "ผลลัพธ์บน": "✅ เข้า" if is_hit_top else "❌ หลุด",
             "ผลลัพธ์ล่าง": "✅ เข้า" if is_hit_bot else "❌ หลุด"
@@ -153,12 +151,9 @@ with tab2:
     if uploaded_file is not None:
         try:
             df = pd.read_csv(uploaded_file)
-            
-            # ตรวจสอบว่ามีคอลัมน์ชื่อ top หรือ bottom หรือไม่
             has_top_bot = any('top' in str(c).lower() or 'bottom' in str(c).lower() for c in df.columns)
             
             if has_top_bot:
-                # 📌 เรียกใช้เครื่องทำความสะอาดข้อมูลที่เพิ่มเข้ามาใหม่
                 cleaned_df = clean_and_prepare_data(df)
                 
                 if len(cleaned_df) < 2:
