@@ -98,4 +98,4 @@ with tab1:
                 st.info("🎯 **เลขเด่นชุดที่ 1**")
                 st.markdown(f"<h2 style='text-align: center; color: #1f77b4;'>{', '.join(map(str, result_set1))}</h2>", unsafe_allow_html=True)
             with res_col2:
-                st.warning("🎯 **เลขเด่นชุดที่ 2
+                st.warning("🎯 **เลขเด่นชุดที่ 2**")
