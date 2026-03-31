@@ -171,7 +171,7 @@ with tab2:
                     with st.spinner('กำลังประมวลผลสถิติและสร้างตารางรายงาน (อาจใช้เวลา 2-3 วินาที)...'):
                         report_df, hit_t, acc_t, hit_b, acc_b = run_detailed_backtest(cleaned_df)
 
-                    st.markdown("### 🏆 สรุปภาพรวมความแม่นยำ")
+                    st.markdown("### 🏆 สรุปภาพรวมความแม่นยำ-เน้น เลขบน")
                     m1, m2 = st.columns(2)
                     m1.metric("ความแม่นยำ (เข้าเลขบน)", f"{acc_t:.2f}%", f"เข้า {hit_t} รอบ")
                     m2.metric("ความแม่นยำ (เข้าเลขล่าง)", f"{acc_b:.2f}%", f"เข้า {hit_b} รอบ")
