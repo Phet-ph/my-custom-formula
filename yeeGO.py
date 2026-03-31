@@ -5,26 +5,26 @@ import itertools
 # =========================================
 # 1. สมองกล: สูตรทดสอบที่ 1: "สูตรผลรวมไขว้และสเต็ปคู่" Cross-Sum & Even Steps
 # =========================================
+
 def my_custom_formula_updated(top_str, bottom_str):
     t1 = int(str(top_str).zfill(3)[0])
     t2 = int(str(top_str).zfill(3)[1])
-    t3 = int(str(top_str).zfill(3)[2])
+    t3 = int(str(top_str).zfill(3)[2]) # ดึงหลักหน่วยบนมาใช้ด้วย
     
     b1 = int(str(bottom_str).zfill(2)[0])
     b2 = int(str(bottom_str).zfill(2)[1])
 
-    # 🎯 ชุดที่ 1: ชนหลักหน่วย (หน่วยบน + หน่วยล่าง) รักษาสเต็ป +3 แบบเดิมของคุณที่เคยเดินดี
-    start_num_1 = (t3 + b2) % 10
-    set_1 = [start_num_1, (start_num_1 + 3) % 10, (start_num_1 + 6) % 10]
+    # --- ชุดที่ 1 ---
+    start_num = (t3 + b2) % 10  
+    set_1 = [start_num, (start_num + 3) % 10, (start_num + 6) % 10]
 
-    # 🎯 ชุดที่ 2: หาผลต่าง (ค่าสัมบูรณ์) ระหว่างหลักสิบ และ หลักหน่วย
-    # abs() คือฟังก์ชันหาค่าความห่าง เช่น abs(2 - 9) = 7
+    # --- ชุดที่ 2 (ปรับตามคำขอ: ไม่ใช้ set() เพื่อให้โชว์เลขชน) ---
     diff_tens = abs(t2 - b1) % 10
     diff_units = abs(t3 - b2) % 10
+    set_2 = [diff_tens, diff_units] # คืนค่าเป็น List ปกติ ไม่ตัดตัวซ้ำ
     
-    set_2 = [diff_tens, diff_units]
-    
-    return list(set(set_1)), list(set(set_2))
+    # คืนค่าแบบ List ทั้งคู่ (ไม่ใช้ set ครอบแล้ว)
+    return set_1, set_2
 
 # =========================================
 # 2. ฟังก์ชันทำความสะอาดข้อมูล (Auto-Data Cleaner)
