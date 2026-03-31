@@ -5,7 +5,7 @@ import itertools
 # =========================================
 # 1. สมองกล: ฟังก์ชันสมการของคุณ
 # =========================================
-def my_custom_formula_test_2(top_str, bottom_str):
+def def my_custom_formula_updated((top_str, bottom_str):
     t1 = int(str(top_str).zfill(3)[0])
     t2 = int(str(top_str).zfill(3)[1])
     t3 = int(str(top_str).zfill(3)[2])
