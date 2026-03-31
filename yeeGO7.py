@@ -184,7 +184,7 @@ with tab2:
                     with st.spinner('กำลังประมวลผลสถิติและสร้างตารางรายงาน (อาจใช้เวลา 2-3 วินาที)...'):
                         report_df, hit_t, acc_t, hit_b, acc_b = run_detailed_backtest(cleaned_df)
 
-                    st.markdown("### 🏆 สรุปภาพรวมความแม่นยสูตรที่6 The Ultimate Matrix สูตรแม่เหล็กควอนตัม")
+                    st.markdown("### 🏆 สรุปภาพรวมความแม่นยสูตรที่ 7 - The Infinity Loopวงจรเลขไหลอินฟินิตี้")
                     m1, m2 = st.columns(2)
                     m1.metric("ความแม่นยำ (เข้าเลขบน)", f"{acc_t:.2f}%", f"เข้า {hit_t} รอบ")
                     m2.metric("ความแม่นยำ (เข้าเลขล่าง)", f"{acc_b:.2f}%", f"เข้า {hit_b} รอบ")
