@@ -56,14 +56,16 @@ def generate_win_numbers(pool):
 # =========================================
 st.set_page_config(page_title="Statistical Fusion V9", page_icon="📈")
 st.title("📈 The Statistical Fusion (เป้าหมาย 95%) + Win Generator")
+tab1, tab2 = st.tabs(["🔍 คำนวณรายรอบ", "📊 ทดสอบสถิติ CSV"])
 
-st.subheader("กรอกข้อมูลเพื่อสร้างชุดเลขแทง")
-c1, c2, c3  = st.columns(3)
-with c1:
+with tab1:
+    st.subheader("กรอกข้อมูลเพื่อพยากรณ์")
+    c1, c2  = st.columns(2)
+    with c1:
     st.markdown("**รอบปัจจุบัน (T)**")
     top_T = st.text_input("บนปัจจุบัน", placeholder="เช่น 240", key="t_t")
     bot_T = st.text_input("ล่างปัจจุบัน", placeholder="เช่น 02", key="b_t")
-with c2:
+    with c2:
     st.markdown("**รอบก่อนหน้า (P)**")
     top_P = st.text_input("บนก่อนหน้า", placeholder="เช่น 746", key="t_p")
     bot_P = st.text_input("ล่างก่อนหน้า", placeholder="เช่น 91", key="b_p")
@@ -92,7 +94,7 @@ if st.button("🚀 คำนวณเลขพยากรณ์และจั�
     else:
         st.error("⚠️ กรุณากรอกข้อมูลให้ครบทั้ง 4 ช่องเพื่อความแม่นยำสูงสุด")
         
- with c3:
+ with tab2:
     uploaded_file = st.file_uploader("อัปโหลดไฟล์ CSV", type=["csv"])
     if uploaded_file:
         df = pd.read_csv(uploaded_file)
