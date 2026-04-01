@@ -8,7 +8,7 @@ import itertools
 # =========================================
 def my_custom_formula_updated(top_T, bot_T, top_P, bot_P):
     try:
-        # สกัดเอาเฉพาะ "ตัวเลข" เท่านั้น และเติม 0 ด้านหน้า
+        # สกัดเอาเฉพาะ "ตัวเลข" เท่านั้น
         top_T_clean = re.sub(r'\D', '', str(top_T)).zfill(3)
         bot_T_clean = re.sub(r'\D', '', str(bot_T)).zfill(2)
         top_P_clean = re.sub(r'\D', '', str(top_P)).zfill(3)
@@ -28,26 +28,55 @@ def my_custom_formula_updated(top_T, bot_T, top_P, bot_P):
         lag = (t3_T + t3_P) % 10
         set_2 = [lag, (lag + 1) % 10, (lag + 9) % 10]
         
-        return set_1, set_2
+        return set_1, set_2, top_T_clean, bot_T_clean
     except Exception as e:
-        return [], []
+        return [], [], "", ""
 
 # =========================================
-# 2. ฟังก์ชันจับคู่เลขวิน (Win Generator)
+# 2. ระบบจัดอันดับและจับคู่เลขวิน (AI Ranking Generator)
 # =========================================
-def generate_win_numbers(pool):
-    # จับคู่ 2 ตัว (สำหรับ 2 ตัวบน และ 2 ตัวล่าง)
+def generate_ranked_win_numbers(set_1, set_2, top_T, bot_T):
+    pool = sorted(list(set(set_1 + set_2)))
+    clash_numbers = set(set_1).intersection(set(set_2)) # หาเลขชน
+    hot_numbers = {1, 2, 8} # เลขสถิติที่มาบ่อย
+    current_digits = set(list(top_T) + list(bot_T)) # เลขไหลจากรอบปัจจุบัน
+    
+    # 📌 1. ให้คะแนน (Weighting) ตัวเลขแต่ละตัว
+    weights = {}
+    for d in pool:
+        score = 1 # คะแนนพื้นฐาน
+        if d in clash_numbers: score += 3  # เลขชนได้น้ำหนักสูงสุด
+        if d in hot_numbers: score += 2    # เลขแชมป์สถิติ
+        if str(d) in current_digits: score += 1 # เลขไหล
+        weights[d] = score
+
+    # 📌 2. จับคู่วิน 2 ตัว และจัดอันดับ
     win_2 = list(itertools.combinations(pool, 2))
-    win_2_str = ", ".join([f"{a}{b}" for a, b in win_2])
+    scored_win_2 = [(combo, sum(weights[d] for d in combo)) for combo in win_2]
+    scored_win_2.sort(key=lambda x: x[1], reverse=True) # เรียงคะแนนจากมากไปน้อย
     
-    # จับคู่ 3 ตัว (สำหรับ 3 ตัวบน)
+    top_5_win_2 = [f"{a}{b}" for combo, score in scored_win_2[:5]]
+    all_win_2_str = ", ".join([f"{a}{b}" for combo, score in scored_win_2])
+    
+    # 📌 3. จับคู่วิน 3 ตัว และจัดอันดับ
     win_3 = list(itertools.combinations(pool, 3))
-    win_3_str = ", ".join([f"{a}{b}{c}" for a, b, c in win_3])
+    scored_win_3 = [(combo, sum(weights[d] for d in combo)) for combo in win_3]
+    scored_win_3.sort(key=lambda x: x[1], reverse=True)
     
-    # เพิ่มเลขเบิ้ล (กรณีอยากกันเหนียว)
-    doubles = ", ".join([f"{a}{a}" for a in pool])
+    top_5_win_3 = [f"{a}{b}{c}" for combo, score in scored_win_3[:5]]
+    all_win_3_str = ", ".join([f"{a}{b}{c}" for combo, score in scored_win_3])
     
-    return win_2_str, win_3_str, doubles, len(win_2), len(win_3)
+    # 📌 4. แนะนำเลขเบิ้ล (เน้นที่เลขชนก่อน)
+    if clash_numbers:
+        top_doubles_str = ", ".join([f"{d}{d}" for d in clash_numbers])
+    else:
+        # ถ้าไม่มีเลขชน ให้เอาเลขคะแนนสูงสุด 2 อันดับแรกมาเบิ้ล
+        sorted_pool = sorted(pool, key=lambda x: weights[x], reverse=True)
+        top_doubles_str = ", ".join([f"{d}{d}" for d in sorted_pool[:2]])
+        
+    all_doubles = ", ".join([f"{d}{d}" for d in pool])
+
+    return top_5_win_2, top_5_win_3, top_doubles_str, all_win_2_str, all_win_3_str, all_doubles, len(win_2), len(win_3)
 
 # =========================================
 # 3. ฟังก์ชันทำความสะอาดข้อมูล (สำหรับ CSV)
@@ -88,7 +117,7 @@ def run_detailed_backtest(df):
         next_top = str(df.iloc[i+1]['top']).zfill(3)
         next_bot = str(df.iloc[i+1]['bottom']).zfill(2)
 
-        set1, set2 = my_custom_formula_updated(curr_top, curr_bot, prev_top, prev_bot)
+        set1, set2, _, _ = my_custom_formula_updated(curr_top, curr_bot, prev_top, prev_bot)
         
         pred_str = f"{', '.join(map(str, set1))} / {', '.join(map(str, set2))}"
         predicted_digits = set(set1).union(set(set2))
@@ -120,7 +149,7 @@ def run_detailed_backtest(df):
 st.set_page_config(page_title="Statistical Fusion V9", page_icon="📈")
 st.title("📈 The Statistical Fusion (เป้าหมาย 95%)")
 
-tab1, tab2 = st.tabs(["🔍 คำนวณรายรอบ + จับคู่วิน", "📊 ทดสอบสถิติ CSV"])
+tab1, tab2 = st.tabs(["🔍 คำนวณพร้อมจัดอันดับ AI", "📊 ทดสอบสถิติ CSV"])
 
 with tab1:
     st.subheader("กรอกข้อมูลเพื่อสร้างชุดเลขแทง")
@@ -131,43 +160,4 @@ with tab1:
         bot_T = st.text_input("ล่างปัจจุบัน", placeholder="เช่น 02", key="b_t")
     with c2:
         st.markdown("**รอบก่อนหน้า (P)**")
-        top_P = st.text_input("บนก่อนหน้า", placeholder="เช่น 746", key="t_p")
-        bot_P = st.text_input("ล่างก่อนหน้า", placeholder="เช่น 91", key="b_p")
-
-    if st.button("🚀 คำนวณเลขพยากรณ์และจับคู่วิน"):
-        if top_T and bot_T and top_P and bot_P:
-            s1, s2 = my_custom_formula_updated(top_T, bot_T, top_P, bot_P)
-            
-            if len(s1) > 0 and len(s2) > 0:
-                # รวมเลขเด่น ตัดตัวซ้ำ และเรียงลำดับใหม่ให้สวยงาม
-                pool = sorted(list(set(s1 + s2)))
-                
-                st.success(f"🎯 กลุ่มเลขเด่นที่คำนวณได้ ({len(pool)} ตัว): **{', '.join(map(str, pool))}**")
-                
-                # นำเลขไปเข้าเครื่องกำเนิดเลขวิน
-                win_2, win_3, doubles, count_2, count_3 = generate_win_numbers(pool)
-                
-                st.markdown("---")
-                st.markdown("### 📋 ชุดเลขนำไปใช้งานจริง (Copy ไปแทงได้เลย)")
-                
-                st.info(f"**🟢 วิน 2 ตัว (นำไปกด 2 ตัวบน / 2 ตัวล่าง + กดกลับเลขด้วย):**\n\nมีทั้งหมด {count_2} ชุด\n\n`{win_2}`")
-                
-                st.warning(f"**🟡 วิน 3 ตัว (นำไปกด 3 ตัวบนโต๊ด หรือ 6 กลับ):**\n\nมีทั้งหมด {count_3} ชุด\n\n`{win_3}`")
-                
-                st.error(f"**🔴 เลขเบิ้ลกันพลาด (สำหรับคนชอบดักเบิ้ล):**\n\n`{doubles}`")
-            else:
-                st.error("❌ เกิดข้อผิดพลาดในการคำนวณ โปรดตรวจสอบว่ากรอกเฉพาะ 'ตัวเลข' เท่านั้น")
-        else:
-            st.error("⚠️ กรุณากรอกข้อมูลให้ครบทั้ง 4 ช่องเพื่อความแม่นยำสูงสุด")
-
-with tab2:
-    uploaded_file = st.file_uploader("อัปโหลดไฟล์ CSV", type=["csv"])
-    if uploaded_file:
-        df = pd.read_csv(uploaded_file)
-        cleaned_df = clean_and_prepare_data(df)
-        if len(cleaned_df) > 2:
-            report_df, h_t, a_t, h_b, a_b = run_detailed_backtest(cleaned_df)
-            st.success(f"วิเคราะห์สำเร็จ! ความแม่นยำบน: {a_t:.2f}% | ล่าง: {a_b:.2f}%")
-            
-            # การไฮไลต์สีเขียวเมื่อทายถูก
-            st.dataframe(report_df.style.apply(lambda r: ['background-color: #d4edda' if (r['ผลบน'] == '✅ เข้า' or r['ผลล่าง'] == '✅ เข้า') else '' for _ in r], axis=1))
+        top_P = st.text_input("บนก่อนหน้า", placeholder="เช่น 746", key="t_
