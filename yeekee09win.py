@@ -202,3 +202,9 @@ with tab1:
 with tab2:
     uploaded_file = st.file_uploader("อัปโหลดไฟล์ CSV", type=["csv"])
     if uploaded_file:
+        df = pd.read_csv(uploaded_file)
+        cleaned_df = clean_and_prepare_data(df)
+        if len(cleaned_df) > 2:
+            report_df, h_t, a_t, h_b, a_b = run_detailed_backtest(cleaned_df)
+            st.success(f"วิเคราะห์สำเร็จ! ความแม่นยำบน: {a_t:.2f}% | ล่าง: {a_b:.2f}%")
+            st.dataframe(report_df.style.apply(lambda r: ['background-color: #d4edda' if (r['ผลบน'] == '✅ เข้า' or r['ผลล่าง'] == '✅ เข้า') else '' for _ in r], axis=1))
