@@ -1,43 +1,56 @@
 import streamlit as st
 import pandas as pd
 import re
+import itertools
 
 # =========================================
-# 1. สมองกล: สูตรที่ 8 (The Oracle Matrix)
+# 1. สมองกล: สูตรที่ 9 (The Statistical Fusion)
 # =========================================
 def my_custom_formula_updated(top_T, bot_T, top_P, bot_P):
     try:
-        # สกัดเอาเฉพาะ "ตัวเลข" เท่านั้น และเติม 0 ด้านหน้าให้ครบหลัก
-        # ป้องกันผู้ใช้เผลอกรอกช่องว่าง หรือตัวอักษรผิดพลาด
+        # สกัดเอาเฉพาะ "ตัวเลข" เท่านั้น และเติม 0 ด้านหน้า
         top_T_clean = re.sub(r'\D', '', str(top_T)).zfill(3)
         bot_T_clean = re.sub(r'\D', '', str(bot_T)).zfill(2)
         top_P_clean = re.sub(r'\D', '', str(top_P)).zfill(3)
         bot_P_clean = re.sub(r'\D', '', str(bot_P)).zfill(2)
 
-        # รอบปัจจุบัน (T)
+        # ดึงค่าหลักตัวเลข
         t1_T = int(top_T_clean[0])
-        t2_T = int(top_T_clean[1])
         t3_T = int(top_T_clean[2])
-        b1_T = int(bot_T_clean[0])
         b2_T = int(bot_T_clean[1])
-
-        # รอบก่อนหน้า (P)
         t3_P = int(top_P_clean[2])
 
-        # 🎯 ชุดที่ 1: The Core Oracle
-        oracle_num = (t1_T + t2_T + t3_P) % 10
-        set_1 = [oracle_num, (oracle_num + 3) % 10, (oracle_num + 6) % 10, (oracle_num + 9) % 10]
+        # 🎯 ชุดที่ 1: ดักสถิติ 5 ตัว (ฐาน + พี่น้อง + เงา + เลขสถิติ)
+        base = (t1_T + b2_T) % 10
+        set_1 = [base, (base + 1) % 10, (base + 2) % 10, (base + 5) % 10, (base + 8) % 10]
 
-        # 🎯 ชุดที่ 2: The Guard Matrix
-        guard_base = (t2_T + b1_T) % 10
-        set_2 = [guard_base, (guard_base + 1) % 10, (guard_base + 9) % 10, (guard_base + 5) % 10]
+        # 🎯 ชุดที่ 2: เลขหน่วงกันพลาด 3 ตัว
+        lag = (t3_T + t3_P) % 10
+        set_2 = [lag, (lag + 1) % 10, (lag + 9) % 10]
         
         return set_1, set_2
     except Exception as e:
-        return [], [] # คืนค่าว่างกลับไปถ้าเกิด Error แทนที่จะให้โปรแกรมเด้ง
+        return [], []
 
 # =========================================
-# 2. ฟังก์ชันทำความสะอาดข้อมูล
+# 2. ฟังก์ชันจับคู่เลขวิน (Win Generator)
+# =========================================
+def generate_win_numbers(pool):
+    # จับคู่ 2 ตัว (สำหรับ 2 ตัวบน และ 2 ตัวล่าง)
+    win_2 = list(itertools.combinations(pool, 2))
+    win_2_str = ", ".join([f"{a}{b}" for a, b in win_2])
+    
+    # จับคู่ 3 ตัว (สำหรับ 3 ตัวบน)
+    win_3 = list(itertools.combinations(pool, 3))
+    win_3_str = ", ".join([f"{a}{b}{c}" for a, b, c in win_3])
+    
+    # เพิ่มเลขเบิ้ล (กรณีอยากกันเหนียว)
+    doubles = ", ".join([f"{a}{a}" for a in pool])
+    
+    return win_2_str, win_3_str, doubles, len(win_2), len(win_3)
+
+# =========================================
+# 3. ฟังก์ชันทำความสะอาดข้อมูล (สำหรับ CSV)
 # =========================================
 def clean_and_prepare_data(df):
     top_cols = [c for c in df.columns if 'top' in str(c).lower()]
@@ -57,11 +70,10 @@ def clean_and_prepare_data(df):
     return clean_df.reset_index(drop=True)
 
 # =========================================
-# 3. ฟังก์ชัน Backtest แบบ Two-Period Lag
+# 4. ฟังก์ชัน Backtest ทดสอบความแม่นยำ
 # =========================================
 def run_detailed_backtest(df):
     results_list = []
-    # เริ่มที่รอบที่ 1 เพื่อให้มี i-1 (รอบก่อนหน้า) มาคำนวณ
     total_rows = len(df)
     hits_top = 0
     hits_bottom = 0
@@ -103,15 +115,15 @@ def run_detailed_backtest(df):
     return report_df, hits_top, t_acc, hits_bottom, b_acc
 
 # =========================================
-# 4. ส่วนแสดงผล UI
+# 5. ส่วนแสดงผล UI (Streamlit)
 # =========================================
-st.set_page_config(page_title="Oracle Matrix V8", page_icon="🔮")
-st.title("🔮 The Oracle Matrix (95% Target)")
+st.set_page_config(page_title="Statistical Fusion V9", page_icon="📈")
+st.title("📈 The Statistical Fusion (เป้าหมาย 95%)")
 
-tab1, tab2 = st.tabs(["🔍 คำนวณรายรอบ", "📊 ทดสอบสถิติ CSV"])
+tab1, tab2 = st.tabs(["🔍 คำนวณรายรอบ + จับคู่วิน", "📊 ทดสอบสถิติ CSV"])
 
 with tab1:
-    st.subheader("กรอกข้อมูลเพื่อพยากรณ์")
+    st.subheader("กรอกข้อมูลเพื่อสร้างชุดเลขแทง")
     c1, c2 = st.columns(2)
     with c1:
         st.markdown("**รอบปัจจุบัน (T)**")
@@ -122,18 +134,31 @@ with tab1:
         top_P = st.text_input("บนก่อนหน้า", placeholder="เช่น 746", key="t_p")
         bot_P = st.text_input("ล่างก่อนหน้า", placeholder="เช่น 91", key="b_p")
 
-    if st.button("🚀 คำนวณเลขพยากรณ์"):
+    if st.button("🚀 คำนวณเลขพยากรณ์และจับคู่วิน"):
         if top_T and bot_T and top_P and bot_P:
             s1, s2 = my_custom_formula_updated(top_T, bot_T, top_P, bot_P)
             
             if len(s1) > 0 and len(s2) > 0:
-                res1, res2 = st.columns(2)
-                res1.info(f"🎯 ชุดที่ 1: {', '.join(map(str, s1))}")
-                res2.warning(f"🎯 ชุดที่ 2: {', '.join(map(str, s2))}")
+                # รวมเลขเด่น ตัดตัวซ้ำ และเรียงลำดับใหม่ให้สวยงาม
+                pool = sorted(list(set(s1 + s2)))
+                
+                st.success(f"🎯 กลุ่มเลขเด่นที่คำนวณได้ ({len(pool)} ตัว): **{', '.join(map(str, pool))}**")
+                
+                # นำเลขไปเข้าเครื่องกำเนิดเลขวิน
+                win_2, win_3, doubles, count_2, count_3 = generate_win_numbers(pool)
+                
+                st.markdown("---")
+                st.markdown("### 📋 ชุดเลขนำไปใช้งานจริง (Copy ไปแทงได้เลย)")
+                
+                st.info(f"**🟢 วิน 2 ตัว (นำไปกด 2 ตัวบน / 2 ตัวล่าง + กดกลับเลขด้วย):**\n\nมีทั้งหมด {count_2} ชุด\n\n`{win_2}`")
+                
+                st.warning(f"**🟡 วิน 3 ตัว (นำไปกด 3 ตัวบนโต๊ด หรือ 6 กลับ):**\n\nมีทั้งหมด {count_3} ชุด\n\n`{win_3}`")
+                
+                st.error(f"**🔴 เลขเบิ้ลกันพลาด (สำหรับคนชอบดักเบิ้ล):**\n\n`{doubles}`")
             else:
                 st.error("❌ เกิดข้อผิดพลาดในการคำนวณ โปรดตรวจสอบว่ากรอกเฉพาะ 'ตัวเลข' เท่านั้น")
         else:
-            st.error("⚠️ กรุณากรอกข้อมูลให้ครบทั้งรอบปัจจุบันและรอบก่อนหน้า")
+            st.error("⚠️ กรุณากรอกข้อมูลให้ครบทั้ง 4 ช่องเพื่อความแม่นยำสูงสุด")
 
 with tab2:
     uploaded_file = st.file_uploader("อัปโหลดไฟล์ CSV", type=["csv"])
