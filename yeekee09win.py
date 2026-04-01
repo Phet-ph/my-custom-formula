@@ -55,18 +55,20 @@ def generate_ranked_win_numbers(set_1, set_2, top_T, bot_T):
     scored_win_2 = [(combo, sum(weights[d] for d in combo)) for combo in win_2]
     scored_win_2.sort(key=lambda x: x[1], reverse=True) # เรียงคะแนนจากมากไปน้อย
     
-    top_5_win_2 = [f"{a}{b}" for combo, score in scored_win_2[:5]]
-    all_win_2_str = ", ".join([f"{a}{b}" for combo, score in scored_win_2])
+    # แก้ไขการดึงค่า a, b จาก combo
+    top_5_win_2 = [f"{combo[0]}{combo[1]}" for combo, score in scored_win_2[:5]]
+    all_win_2_str = ", ".join([f"{combo[0]}{combo[1]}" for combo, score in scored_win_2])
     
     # 📌 3. จับคู่วิน 3 ตัว และจัดอันดับ
     win_3 = list(itertools.combinations(pool, 3))
     scored_win_3 = [(combo, sum(weights[d] for d in combo)) for combo in win_3]
     scored_win_3.sort(key=lambda x: x[1], reverse=True)
     
-    top_5_win_3 = [f"{a}{b}{c}" for combo, score in scored_win_3[:5]]
-    all_win_3_str = ", ".join([f"{a}{b}{c}" for combo, score in scored_win_3])
+    # แก้ไขการดึงค่า a, b, c จาก combo
+    top_5_win_3 = [f"{combo[0]}{combo[1]}{combo[2]}" for combo, score in scored_win_3[:5]]
+    all_win_3_str = ", ".join([f"{combo[0]}{combo[1]}{combo[2]}" for combo, score in scored_win_3])
     
-    # 📌 4. แนะนำเลขเบิ้ล (เน้นที่เลขชนก่อน)
+    # 📌 4. แนะนำเลขเบิ้ล
     if clash_numbers:
         top_doubles_str = ", ".join([f"{d}{d}" for d in clash_numbers])
     else:
@@ -185,7 +187,7 @@ with tab1:
                 
                 st.error(f"**🚨 เลขเบิ้ลตัวเต็ง:** **{rec_doubles}**")
                 
-                # ส่วนแสดงผลทั้งหมด (สำหรับคนเน้นกระจายความเสี่ยงชัวร์ๆ)
+                # ส่วนแสดงผลทั้งหมด
                 st.markdown("---")
                 st.markdown("### 📋 ชุดเลขวินทั้งหมด (เรียงตามคะแนนความน่าจะเป็น)")
                 with st.expander("คลิกเพื่อดูชุดเลขวินทั้งหมด (ไว้สำหรับกดกระจายความเสี่ยง)"):
@@ -200,9 +202,3 @@ with tab1:
 with tab2:
     uploaded_file = st.file_uploader("อัปโหลดไฟล์ CSV", type=["csv"])
     if uploaded_file:
-        df = pd.read_csv(uploaded_file)
-        cleaned_df = clean_and_prepare_data(df)
-        if len(cleaned_df) > 2:
-            report_df, h_t, a_t, h_b, a_b = run_detailed_backtest(cleaned_df)
-            st.success(f"วิเคราะห์สำเร็จ! ความแม่นยำบน: {a_t:.2f}% | ล่าง: {a_b:.2f}%")
-            st.dataframe(report_df.style.apply(lambda r: ['background-color: #d4edda' if (r['ผลบน'] == '✅ เข้า' or r['ผลล่าง'] == '✅ เข้า') else '' for _ in r], axis=1))
