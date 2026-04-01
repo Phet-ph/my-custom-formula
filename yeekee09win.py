@@ -1,28 +1,38 @@
 import streamlit as st
 import pandas as pd
 import re
+import itertools
 
 # =========================================
-# 1. สมองกล: สูตรที่ 8 (The Oracle Matrix)
+# 1. สมองกล: สูตรที่ 9 (The Statistical Fusion)
 # =========================================
 def my_custom_formula_updated(top_T, bot_T, top_P, bot_P):
-    # ดึงค่าหลักตัวเลข
-    t1_T = int(str(top_T).zfill(3)[0])
-    t3_T = int(str(top_T).zfill(3)[2])
-    b2_T = int(str(bot_T).zfill(2)[1])
-    t3_P = int(str(top_P).zfill(3)[2])
+    try:
+        # สกัดเอาเฉพาะ "ตัวเลข" เท่านั้น (ป้องกัน User พิมพ์ช่องว่างหรือตัวอักษรผิด)
+        top_T_clean = re.sub(r'\D', '', str(top_T)).zfill(3)
+        bot_T_clean = re.sub(r'\D', '', str(bot_T)).zfill(2)
+        top_P_clean = re.sub(r'\D', '', str(top_P)).zfill(3)
+        bot_P_clean = re.sub(r'\D', '', str(bot_P)).zfill(2)
 
-    # 🎯 ชุดที่ 1: ดักสถิติ 5 ตัว (ฐาน + พี่น้อง + เงา + เลขสถิติ)
-    base = (t1_T + b2_T) % 10
-    set_1 = [base, (base + 1) % 10, (base + 2) % 10, (base + 5) % 10, (base + 8) % 10]
+        # ดึงค่าหลักตัวเลข
+        t1_T = int(top_T_clean[0])
+        t3_T = int(top_T_clean[2])
+        b2_T = int(bot_T_clean[1])
+        t3_P = int(top_P_clean[2])
 
-    # 🎯 ชุดที่ 2: เลขหน่วงกันพลาด 3 ตัว
-    lag = (t3_T + t3_P) % 10
-    set_2 = [lag, (lag + 1) % 10, (lag + 9) % 10]
-    
-    # รวมกลุ่มเลขและตัดตัวซ้ำออก
-    combined_pool = sorted(list(set(set_1 + set_2)))
-    return combined_pool
+        # 🎯 ชุดที่ 1: ดักสถิติ 5 ตัว (ฐาน + พี่น้อง + เงา + เลขสถิติ)
+        base = (t1_T + b2_T) % 10
+        set_1 = [base, (base + 1) % 10, (base + 2) % 10, (base + 5) % 10, (base + 8) % 10]
+
+        # 🎯 ชุดที่ 2: เลขหน่วงกันพลาด 3 ตัว
+        lag = (t3_T + t3_P) % 10
+        set_2 = [lag, (lag + 1) % 10, (lag + 9) % 10]
+        
+        # รวมกลุ่มเลขและตัดตัวซ้ำออก
+        combined_pool = sorted(list(set(set_1 + set_2)))
+        return combined_pool
+    except Exception as e:
+        return [] # คืนค่าว่างกลับไปถ้ามี Error ร้ายแรง
 
 # =========================================
 # 2. ฟังก์ชันจับคู่เลขวิน (Win Generator)
@@ -36,7 +46,7 @@ def generate_win_numbers(pool):
     win_3 = list(itertools.combinations(pool, 3))
     win_3_str = ", ".join([f"{a}{b}{c}" for a, b, c in win_3])
     
-    # เพิ่มเลขเบิ้ล (กรณีอยากกันเหนียว)
+    # เพิ่มเลขเบิ้ล
     doubles = ", ".join([f"{a}{a}" for a in pool])
     
     return win_2_str, win_3_str, doubles, len(win_2), len(win_3)
@@ -59,22 +69,31 @@ with c2:
     bot_P = st.text_input("ล่างก่อนหน้า", placeholder="เช่น 91", key="b_p")
 
 if st.button("🚀 คำนวณเลขพยากรณ์และจับคู่วิน"):
-    if all([top_T, bot_T, top_P, bot_P]):
+    if top_T and bot_T and top_P and bot_P:
         # 1. คำนวณเลขเด่น
         pool = my_custom_formula_test_9(top_T, bot_T, top_P, bot_P)
-        st.success(f"🎯 กลุ่มเลขเด่นที่คำนวณได้ ({len(pool)} ตัว): **{', '.join(map(str, pool))}**")
         
-        # 2. สร้างเลขวินโดยใช้ itertools
-        win_2, win_3, doubles, count_2, count_3 = generate_win_numbers(pool)
-        
-        st.markdown("---")
-        st.markdown("### 📋 ชุดเลขนำไปใช้งานจริง (Copy ไปแทงได้เลย)")
-        
-        st.info(f"**🟢 วิน 2 ตัว (นำไปกด 2 ตัวบน / 2 ตัวล่าง + กดกลับเลขด้วย):**\n\nมีทั้งหมด {count_2} ชุด\n\n`{win_2}`")
-        
-        st.warning(f"**🟡 วิน 3 ตัว (นำไปกด 3 ตัวบนโต๊ด หรือ 6 กลับ):**\n\nมีทั้งหมด {count_3} ชุด\n\n`{win_3}`")
-        
-        st.error(f"**🔴 เลขเบิ้ลกันพลาด (สำหรับคนชอบดักเบิ้ล):**\n\n`{doubles}`")
-        
+        if len(pool) > 0:
+            st.success(f"🎯 กลุ่มเลขเด่นที่คำนวณได้ ({len(pool)} ตัว): **{', '.join(map(str, pool))}**")
+            
+            # 2. สร้างเลขวิน
+            win_2, win_3, doubles, count_2, count_3 = generate_win_numbers(pool)
+            
+            st.markdown("---")
+            st.markdown("### 📋 ชุดเลขนำไปใช้งานจริง (Copy ไปแทงได้เลย)")
+            
+            st.info(f"**🟢 วิน 2 ตัว (นำไปกด 2 ตัวบน / 2 ตัวล่าง + กดกลับเลขด้วย):**\n\nมีทั้งหมด {count_2} ชุด\n\n`{win_2}`")
+            
+            st.warning(f"**🟡 วิน 3 ตัว (นำไปกด 3 ตัวบนโต๊ด หรือ 6 กลับ):**\n\nมีทั้งหมด {count_3} ชุด\n\n`{win_3}`")
+            
+            st.error(f"**🔴 เลขเบิ้ลกันพลาด (สำหรับคนชอบดักเบิ้ล):**\n\n`{doubles}`")
+        else:
+            st.error("❌ เกิดข้อผิดพลาดในการคำนวณ โปรดตรวจสอบว่ากรอกเฉพาะ 'ตัวเลข' เท่านั้น")
     else:
-        st.error("กรุณากรอกข้อมูลให้ครบทั้ง 4 ช่องเพื่อความแม่นยำสูงสุด")
+        st.error("⚠️ กรุณากรอกข้อมูลให้ครบทั้ง 4 ช่องเพื่อความแม่นยำสูงสุด")
+
+
+
+
+
+   
