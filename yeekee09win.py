@@ -58,7 +58,7 @@ st.set_page_config(page_title="Statistical Fusion V9", page_icon="📈")
 st.title("📈 The Statistical Fusion (เป้าหมาย 95%) + Win Generator")
 
 st.subheader("กรอกข้อมูลเพื่อสร้างชุดเลขแทง")
-c1, c2 = st.columns(2)
+c1, c2, c3  = st.columns(3)
 with c1:
     st.markdown("**รอบปัจจุบัน (T)**")
     top_T = st.text_input("บนปัจจุบัน", placeholder="เช่น 240", key="t_t")
@@ -92,7 +92,7 @@ if st.button("🚀 คำนวณเลขพยากรณ์และจั�
     else:
         st.error("⚠️ กรุณากรอกข้อมูลให้ครบทั้ง 4 ช่องเพื่อความแม่นยำสูงสุด")
         
- with tab2:
+ with c3:
     uploaded_file = st.file_uploader("อัปโหลดไฟล์ CSV", type=["csv"])
     if uploaded_file:
         df = pd.read_csv(uploaded_file)
