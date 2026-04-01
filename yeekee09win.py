@@ -145,4 +145,4 @@ with tab2:
             st.success(f"วิเคราะห์สำเร็จ! ความแม่นยำบน: {a_t:.2f}% | ล่าง: {a_b:.2f}%")
             
             # การไฮไลต์สีเขียวเมื่อทายถูก
-            st.dataframe(report_
+            st.dataframe(report_df.style.apply(lambda r: ['background-color: #d4edda' if (r['ผลบน'] == '✅ เข้า' or r['ผลล่าง'] == '✅ เข้า') else '' for _ in r], axis=1))
