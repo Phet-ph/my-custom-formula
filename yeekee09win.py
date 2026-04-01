@@ -94,7 +94,7 @@ def run_detailed_backtest(df):
 # 4. ส่วนแสดงผล UI
 # =========================================
 st.set_page_config(page_title="Oracle Matrix V8", page_icon="🔮")
-st.title("🔮 The Oracle Matrix (95% Target)")
+st.title("🔮 สูตรที่ 9: The Statistical Fusion (สถิติฟิวชัน)")
 
 tab1, tab2 = st.tabs(["🔍 คำนวณรายรอบ", "📊 ทดสอบสถิติ CSV"])
 
