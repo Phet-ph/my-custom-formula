@@ -160,4 +160,49 @@ with tab1:
         bot_T = st.text_input("ล่างปัจจุบัน", placeholder="เช่น 02", key="b_t")
     with c2:
         st.markdown("**รอบก่อนหน้า (P)**")
-        top_P = st.text_input("บนก่อนหน้า", placeholder="เช่น 746", key="t_
+        top_P = st.text_input("บนก่อนหน้า", placeholder="เช่น 746", key="t_p")
+        bot_P = st.text_input("ล่างก่อนหน้า", placeholder="เช่น 91", key="b_p")
+
+    if st.button("🚀 คำนวณพยากรณ์และจัดอันดับ"):
+        if top_T and bot_T and top_P and bot_P:
+            set_1, set_2, t_clean, b_clean = my_custom_formula_updated(top_T, bot_T, top_P, bot_P)
+            
+            if len(set_1) > 0 and len(set_2) > 0:
+                pool = sorted(list(set(set_1 + set_2)))
+                st.success(f"🎯 กลุ่มเลขเด่นที่ได้ ({len(pool)} ตัว): **{', '.join(map(str, pool))}**")
+                
+                # นำไปจัดอันดับ
+                top5_w2, top5_w3, rec_doubles, all_w2, all_w3, all_dbl, c2_len, c3_len = generate_ranked_win_numbers(set_1, set_2, t_clean, b_clean)
+                
+                # ส่วนแสดงผล Top 5 (ไฮไลท์เด่นชัด)
+                st.markdown("---")
+                st.markdown("### 🏆 Top 5 อันดับเลขวิน (AI แนะนำ)")
+                col_w2, col_w3 = st.columns(2)
+                with col_w2:
+                    st.success(f"**🔥 5 อันดับ วิน 2 ตัว:**\n\n**{', '.join(top5_w2)}**")
+                with col_w3:
+                    st.warning(f"**⭐ 5 อันดับ วิน 3 ตัว:**\n\n**{', '.join(top5_w3)}**")
+                
+                st.error(f"**🚨 เลขเบิ้ลตัวเต็ง:** **{rec_doubles}**")
+                
+                # ส่วนแสดงผลทั้งหมด (สำหรับคนเน้นกระจายความเสี่ยงชัวร์ๆ)
+                st.markdown("---")
+                st.markdown("### 📋 ชุดเลขวินทั้งหมด (เรียงตามคะแนนความน่าจะเป็น)")
+                with st.expander("คลิกเพื่อดูชุดเลขวินทั้งหมด (ไว้สำหรับกดกระจายความเสี่ยง)"):
+                    st.info(f"**วิน 2 ตัว (ทั้งหมด {c2_len} ชุด):**\n\n{all_w2}")
+                    st.warning(f"**วิน 3 ตัว (ทั้งหมด {c3_len} ชุด):**\n\n{all_w3}")
+                    st.error(f"**เบิ้ลทั้งหมด:** {all_dbl}")
+            else:
+                st.error("❌ เกิดข้อผิดพลาดในการคำนวณ โปรดตรวจสอบว่ากรอกเฉพาะ 'ตัวเลข' เท่านั้น")
+        else:
+            st.error("⚠️ กรุณากรอกข้อมูลให้ครบทั้ง 4 ช่องเพื่อความแม่นยำสูงสุด")
+
+with tab2:
+    uploaded_file = st.file_uploader("อัปโหลดไฟล์ CSV", type=["csv"])
+    if uploaded_file:
+        df = pd.read_csv(uploaded_file)
+        cleaned_df = clean_and_prepare_data(df)
+        if len(cleaned_df) > 2:
+            report_df, h_t, a_t, h_b, a_b = run_detailed_backtest(cleaned_df)
+            st.success(f"วิเคราะห์สำเร็จ! ความแม่นยำบน: {a_t:.2f}% | ล่าง: {a_b:.2f}%")
+            st.dataframe(report_df.style.apply(lambda r: ['background-color: #d4edda' if (r['ผลบน'] == '✅ เข้า' or r['ผลล่าง'] == '✅ เข้า') else '' for _ in r], axis=1))
