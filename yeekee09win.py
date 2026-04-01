@@ -61,7 +61,7 @@ with c2:
 if st.button("🚀 คำนวณเลขพยากรณ์และจับคู่วิน"):
     if all([top_T, bot_T, top_P, bot_P]):
         # 1. คำนวณเลขเด่น
-        pool = my_custom_formula_test_9(top_T, bot_T, top_P, bot_P)
+        pool =  my_custom_formula_updated(top_T, bot_T, top_P, bot_P)
         st.success(f"🎯 กลุ่มเลขเด่นที่คำนวณได้ ({len(pool)} ตัว): **{', '.join(map(str, pool))}**")
         
         # 2. สร้างเลขวิน
